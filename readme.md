@@ -34,7 +34,7 @@
 
 ---
 
-#### `/captchatest/:code` 测试svg验证码是否正确
+#### `/captchatest/:captcha` 测试svg验证码是否正确
 
 发送请求前请验证:
 
@@ -112,11 +112,11 @@ success不为2000的时候为出错
 
 ---
 
-#### `/login/:vertify` 用户登录
+#### `/login/:captcha` 用户登录
 
 发送请求前请验证：
 
-* 已经发送短信验证码并且vertify位数正确(6位)
+* 图形验证码正确
 
 请求方式： post
 
