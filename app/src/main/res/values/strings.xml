@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">电影购票助手</string>
+    <string name="prompt_login_user_phone">用户名/手机号</string>
+    <string name="prompt_login_password">密码</string>
+    <string name="prompt_login_captcha">验证码</string>
+    <string name="action_login">登录</string>
+    <string name="prompt_register_user">用户名</string>
+    <string name="prompt_register_phone">手机号</string>
+    <string name="prompt_register_password">密码</string>
+    <string name="prompt_register_password_confirm">确认密码</string>
+    <string name="prompt_register_captcha">验证码</string>
+    <string name="prompt_register_verify">短信验证码</string>
+    <string name="action_verify">获取验证码</string>
+    <string name="action_register">注册</string>
+</resources>
