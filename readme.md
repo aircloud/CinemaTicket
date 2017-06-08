@@ -1,6 +1,8 @@
-preURL: http://c.10000h.top/
+>注意:目前接口已经全面换成https,原来的http失效
 
-例如: http://c.10000h.top/user/captcha
+preURL: https://c.10000h.top/
+
+例如: https://c.10000h.top/user/captcha
 
 ## 电影票购票系统后端接口
 
