@@ -69,7 +69,8 @@ success不为2000的时候为出错
 请求方式: get
 
 返回：  
-如果有这个用户`{success:2000,value:{result:true}}`  
+如果有这个用户并且手机号被占用`{success:2000,value:{result:true,type:"phone"}}`    
+如果有这个用户并且用户名被占用`{success:2000,value:{result:true,type:"name"}}`    
 如果没这个用户`{success:2000,value:{result:false}}`
 
 ---
@@ -156,51 +157,111 @@ success不为2000的时候为出错
 #### `/userLogout` 用户注销登录 这个看情况，可能用不到
 
 
-## 电影票系统(提案阶段)
+## 电影票系统(测试阶段)
 
-前缀暂定`/main/`
+**前缀为`/main/`**
 
 >电影票系统的原则是,能爬数据我尽量用真数据,如果是真数据的话肯定有一个线程在不断更新数据,实在爬不到真数据我就用假数据,但是保证字段一样。
 
 #### `/cinemas` 影院信息
 
+请求方式：GET
+
+
 会返回一些影城的名字和地址，还有起始价
 
 ```
 [
-{
-  cinemaName:
-  cinemaAddr:
-  cinemaBeginPrice:
-}
+"success":2000,
+"value":[{"id":1,"name":"横店电影城(杭州下沙店)","address":"杭州市江干区下沙宝龙商业中心三号楼3F-001","beginprice":17,"nm_cinema":"8416"},......]
 ]
 ```
 
-#### `/movies/:type` 返回电影信息
+#### `/movies` 返回电影信息
 
-type为1的时候为正在上映
-type为2的话为即将上映
+请求方式：GET
 
-返回的信息大概有类型、时长、上映时间、评分、一句话简介等，这个等我爬一些再说
+
+```
+{"success":2000,"value":[{"id":1,"name":"新木乃伊","abstract":"木乃伊归来","score":6.5,"type":"冒险,动作,恐怖","duration":"106分钟","showtime":"2017-6-9","photo":"https://gss0.baidu.com/94o3dSag_xI4khGko9WTAnF6hhy/movie/pic/item/a5c27d1ed21b0ef4c3ff5f50d7c451da81cb3ead.jpg","nm_movieid":"63068"},......]}
+```
+
+#### `/recommend` 返回推荐电影信息
+
+请求方式：GET
+
+
+返回目前在上映的电影的推荐信息，根据评分来推荐，数据格式和上面的电影信息格式一样。
+
+目前暂定五条，这个数目可以协商。
+
+```
+{"success":2000,"value":[{"id":6,"name":"摔跤吧！爸爸","abstract":"谁说女子不如男","score":9.6,"type":"动作,家庭,喜剧","duration":"140分钟","showtime":"2017-5-5","photo":"https://gss0.baidu.com/-4o3dSag_xI4khGko9WTAnF6hhy/movie/pic/item/dc54564e9258d109afede3a3db58ccbf6c814d90.jpg","nm_movieid":"62983"},......]}
+```
+
 
  然后点击某一个电影出现影院选择界面，这个影院选择界面的列表和影院信息的影院一样(我们不做定位系统，我就把杭州所有影院返回) 
 
 
-#### `/schedule/:cinema/:movie` 返回排片页面
+#### `/schedule/:cinemaid/:movieid` 返回排片页面
+
+请求方式：GET
+
 
 会返回排片时间、几号厅、已售出多少等
 
+注意传给我的是两个id,这个id信息前面几个接口部分我有提供
 
-#### 然后选择座位，我们就弄一个固定的吧..座位样式是固定的
+```
+{"success":2000,"value":[{"id":92,"begintime":"12:00","endtime":"13:46散场","dimension":"3D","hall":"5号厅","price":"￥41","surplus":80,"cinemaid":"8080","movieid":"63068"},......]}
+```
 
+#### `/getorderseats/:arrangeid` 获取已经被占用的座位的编号
 
-#### 购票
+请求方式：GET
 
-这个时候影片、电影院、场次信息都选择了
+>实际上这个arrange就是schedule的意思,一般都和排片表的字段有关
 
-但购票我们这里是模拟的...至于怎么模拟...这个可能接口会稍微简单一些，主要是前端流程，所以希望这个流程你们确定...
+这里为了前后端解析方便，我觉得你不要传给我行号和列号了,直接传给我一个转化成一维之后的id，这样我们都比较方便。
 
-关于我提供什么接口，反正最后购票成功的话是有一个数字串生成...然后传给你们画二维码(客户端不方便的话我看看我能不能直接生成图形)
+我会把已经占用的座位用对象数组的方式给你：
+
+```
+{"success":2000,"value":[{"seatid":0},{"seatid":20},{"seatid":30},......]}
+```
+
+#### `/order/:arrangeid/:userid/:seatid` 购票，返回随机字符串
+
+请求方式：POST
+
+```
+{
+      success:2000,
+      value:/*这个值是你需要转化成二维码的随机字符串，20位左右*/
+}
+```
 
 然后这个二维码是要保存的，到时候可以拿出来扫一扫，也就是说个人中心应该有一个“我购买的票”这样一个栏目。
 
+#### `/searchorder/:ordernumber` 供小程序使用的查询接口 
+
+请求方式：POST
+
+如果失败:
+
+```
+{
+       success:3000,
+       value:"没有查询到相关信息"
+}
+```
+如果成功，一个例子：
+
+```
+{"success":2000,"value":{"id":92,"begintime":"12:00","endtime":"13:46散场","dimension":"3D","hall":"5号厅","price":"￥41","surplus":79,"cinemaid":"8080","movieid":"63068"}}
+```
+#### `/loginunsafe` 不安全的用户登陆接口,供小程序使用
+
+请求方式：POST
+
+具体使用方式和上面`/login`一样，只是不用发送图形验证码了
