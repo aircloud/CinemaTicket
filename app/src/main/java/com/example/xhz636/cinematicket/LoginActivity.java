@@ -118,21 +118,13 @@ public class LoginActivity extends AppCompatActivity {
         intent.setClass(LoginActivity.this, ChooseTicketActivity.class);
         startActivity(intent);
         finish();*/
-        Intent intent = new Intent();
-        intent.putExtra("ordernumber", "1ahd20evniabmh17ltn1zqto6r1497855946417");
-        intent.setClass(LoginActivity.this, QRCodeActivity.class);
-        startActivity(intent);
-        finish();
     }
 
     private void getCaptcha() {
-        CookieSyncManager.createInstance(LoginActivity.this);
         CookieManager cookieManager = CookieManager.getInstance();
         cookieManager.setAcceptCookie(true);
-        while (cookie == null)
-            cookie = cookieManager.getCookie("https://c.10000h.top");
+        cookie = cookieManager.getCookie("https://c.10000h.top/");
         Log.d("cookie", cookie);
-        CookieSyncManager.getInstance().sync();
         webView_Captcha.loadUrl("https://c.10000h.top/user/captcha");
     }
 
@@ -149,6 +141,7 @@ public class LoginActivity extends AppCompatActivity {
                         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                         connection.setRequestMethod("GET");
                         connection.setRequestProperty("Cookie", cookie);
+                        Log.d("cookie", cookie);
                         connection.setConnectTimeout(1000);
                         connection.connect();
                         int responsecode = connection.getResponseCode();

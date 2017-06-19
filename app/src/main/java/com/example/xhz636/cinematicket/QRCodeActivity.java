@@ -1,6 +1,8 @@
 package com.example.xhz636.cinematicket;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -16,16 +18,38 @@ public class QRCodeActivity extends AppCompatActivity {
 
     private ImageView imageView;
 
+    private String userid;
+
+    private TicketDatabaseHelper tickethelper;
+    private SQLiteDatabase ticketdb;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_qrcode);
+        Intent intent = getIntent();
+        userid = intent.getStringExtra("userid");
         imageView = (ImageView)findViewById(R.id.qrcode_image);
         Bitmap bitmap;
         try {
-            Intent intent = getIntent();
-            bitmap = Create2DCode(intent.getStringExtra("ordernumber"));
-            imageView.setImageBitmap(bitmap);
+            tickethelper = new TicketDatabaseHelper(this, "ticket.db", null, 1);
+            ticketdb = tickethelper.getWritableDatabase();
+            Cursor cursor = ticketdb.query(
+                    "ticket",
+                    new String[] { "movie", "ordernumber" },
+                    "userid = ?",
+                    new String[] { userid },
+                    null,
+                    null,
+                    null);
+            if(cursor.moveToFirst()) {
+                String movie = cursor.getString(cursor.getColumnIndex("movie"));
+                setTitle(movie);
+                String ordernumber = cursor.getString(cursor.getColumnIndex("ordernumber"));
+                bitmap = Create2DCode(ordernumber);
+                imageView.setImageBitmap(bitmap);
+            }
+            cursor.close();
         } catch (WriterException e) {
             e.printStackTrace();
         }

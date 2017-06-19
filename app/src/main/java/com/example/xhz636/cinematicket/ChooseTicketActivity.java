@@ -1,6 +1,8 @@
 package com.example.xhz636.cinematicket;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Html;
@@ -26,29 +28,37 @@ public class ChooseTicketActivity extends AppCompatActivity {
     private SeatView seatView_Seat;
     private Button button_Buy;
 
+    private String movie;
+    private String cinema;
+    private String begintime;
+    private String hall;
+    private String dimension;
     private int arrangeid;
     private float price;
     private int window_width;
     private String userid;
     private String cookie;
 
-    private ArrayList<String> tickets = new ArrayList<>();
-    private ArrayList<Integer> sold = new ArrayList<>();
+    private TicketDatabaseHelper tickethelper;
+    private SQLiteDatabase ticketdb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose_ticket);
         Intent intent = getIntent();
-        setTitle(intent.getStringExtra("movie"));
+        movie = intent.getStringExtra("movie");
+        setTitle(movie);
         textView_TicketInfo = (TextView)findViewById(R.id.ticket_info);
         seatView_Seat = (SeatView)findViewById(R.id.seat_choose_view);
         button_Buy = (Button)findViewById(R.id.ticket_buy);
-        String cinema = intent.getStringExtra("cinema");
-        String begintime = intent.getStringExtra("begintime");
+        cinema = intent.getStringExtra("cinema");
+        begintime = intent.getStringExtra("begintime");
         String html = "<h4>" + cinema + "</h4><h6><font color='#ff0000'>开始时间：" + begintime + "</font><h6>";
         textView_TicketInfo.setText(Html.fromHtml(html));
-        seatView_Seat.setScreenName(intent.getStringExtra("hall") + "-" + intent.getStringExtra("dimension"));
+        hall = intent.getStringExtra("hall");
+        dimension = intent.getStringExtra("dimension");
+        seatView_Seat.setScreenName(hall + "-" + dimension);
         arrangeid = intent.getIntExtra("arrangeid", 0);
         price = intent.getFloatExtra("price", 0);
         userid = intent.getStringExtra("userid");
@@ -101,15 +111,21 @@ public class ChooseTicketActivity extends AppCompatActivity {
                             seatView_Seat.clearSelect();
                             payDialog.cancel();
                             Toast.makeText(getApplicationContext(), "购票成功！", Toast.LENGTH_LONG).show();
+                            Intent intent = new Intent();
+                            intent.putExtra("userid", userid);
+                            intent.setClass(ChooseTicketActivity.this, QRCodeActivity.class);
+                            startActivity(intent);
+                            finish();
                         }
                     }
                 });
             }
         });
+        tickethelper = new TicketDatabaseHelper(this, "ticket.db", null, 1);
+        ticketdb = tickethelper.getWritableDatabase();
     }
 
     private void initTicket() {
-        sold.clear();
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -191,8 +207,18 @@ public class ChooseTicketActivity extends AppCompatActivity {
                         int success = jsonObject.optInt("success");
                         if (success == 2000)
                         {
-                            String value = jsonObject.optString("value");
-                            tickets.add(value);
+                            String ordernumber = jsonObject.optString("value");
+                            ContentValues values = new ContentValues();
+                            values.put("userid", userid);
+                            values.put("movie", movie);
+                            values.put("cinema", cinema);
+                            values.put("begintime", begintime);
+                            values.put("hall", hall);
+                            values.put("dimension", dimension);
+                            values.put("row", seatid / 10 + 1);
+                            values.put("column", seatid % 10 + 1);
+                            values.put("ordernumber", ordernumber);
+                            ticketdb.insert("ticket", null, values);
                         }
                     }
                     connection.disconnect();
