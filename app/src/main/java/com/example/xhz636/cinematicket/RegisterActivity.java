@@ -233,12 +233,49 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void getCaptcha() {
-        CookieSyncManager.createInstance(RegisterActivity.this);
+        getCookie("https://c.10000h.top/user/captcha");
+        Log.d("cookie", cookie);
+        webView_Captcha.loadUrl("https://c.10000h.top/user/captcha");
+    }
+
+    private boolean getCookie(final String url) {
         CookieManager cookieManager = CookieManager.getInstance();
         cookieManager.setAcceptCookie(true);
-        cookie = cookieManager.getCookie("https://c.10000h.top");
-        CookieSyncManager.getInstance().sync();
-        webView_Captcha.loadUrl("https://c.10000h.top/user/captcha");
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String geturl = url;
+                    Log.d("url", geturl);
+                    URL url = new URL(geturl);
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.setRequestMethod("GET");
+                    connection.setConnectTimeout(1000);
+                    connection.connect();
+                    int responsecode = connection.getResponseCode();
+                    Log.d("response", String.valueOf(responsecode));
+                    if (responsecode == HttpURLConnection.HTTP_OK) {
+                        cookie = connection.getHeaderField("Set-Cookie");
+                    }
+                    connection.disconnect();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        thread.start();
+        try {
+            thread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        if (cookie != null) {
+            cookieManager.setCookie("https://c.10000h.top/", cookie);
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     private boolean checkCaptcha(final String code) {
