@@ -117,7 +117,7 @@ success不为2000的时候为出错
 
 ```
 {result:2000,
- value: {id:,name:,phone:,registertime:}}
+ user: {id:,name:,phone:,registertime:}}
 ```
 
 ---
@@ -203,7 +203,6 @@ success不为2000的时候为出错
 
 
  然后点击某一个电影出现影院选择界面，这个影院选择界面的列表和影院信息的影院一样(我们不做定位系统，我就把杭州所有影院返回) 
-
 
 #### `/schedule/:cinemaid/:movieid` 返回排片页面
 

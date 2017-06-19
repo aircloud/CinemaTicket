@@ -236,9 +236,9 @@ public class RegisterActivity extends AppCompatActivity {
         CookieSyncManager.createInstance(RegisterActivity.this);
         CookieManager cookieManager = CookieManager.getInstance();
         cookieManager.setAcceptCookie(true);
-        cookie = cookieManager.getCookie("http://c.10000h.top");
+        cookie = cookieManager.getCookie("https://c.10000h.top");
         CookieSyncManager.getInstance().sync();
-        webView_Captcha.loadUrl("http://c.10000h.top/user/captcha");
+        webView_Captcha.loadUrl("https://c.10000h.top/user/captcha");
     }
 
     private boolean checkCaptcha(final String code) {
@@ -247,7 +247,7 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    String geturl = "http://c.10000h.top/user/captchatest/" + code;
+                    String geturl = "https://c.10000h.top/user/captchatest/" + code;
                     Log.d("url", geturl);
                     URL url = new URL(geturl);
                     HttpURLConnection connection = (HttpURLConnection)url.openConnection();
@@ -297,7 +297,7 @@ public class RegisterActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     try {
-                        String geturl = "http://c.10000h.top/user/finduser/" + phone + "/" + user;
+                        String geturl = "https://c.10000h.top/user/finduser/" + phone + "/" + user;
                         Log.d("url", geturl);
                         URL url = new URL(geturl);
                         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -383,7 +383,7 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    String geturl = "http://c.10000h.top/user/send/" + captcha + "/" + phone;
+                    String geturl = "https://c.10000h.top/user/send/" + captcha + "/" + phone;
                     Log.d("url", geturl);
                     URL url = new URL(geturl);
                     HttpURLConnection connection = (HttpURLConnection)url.openConnection();
@@ -441,7 +441,7 @@ public class RegisterActivity extends AppCompatActivity {
                         jsonParam.put("phone", phone);
                         jsonParam.put("name", user);
                         jsonParam.put("password", password);
-                        String posturl = "http://c.10000h.top/user/insert/" + verify;
+                        String posturl = "https://c.10000h.top/user/insert/" + verify;
                         Log.d("url", posturl);
                         URL url = new URL(posturl);
                         HttpURLConnection connection = (HttpURLConnection) url.openConnection();

@@ -13,4 +13,8 @@
     <string name="prompt_register_verify">短信验证码</string>
     <string name="action_verify">获取验证码</string>
     <string name="action_register">注册</string>
+    <string name="action_buy_ticket">确认选座</string>
+    <string name="prompt_pay_password">密码</string>
+    <string name="action_pay_cancel">取消</string>
+    <string name="action_pay_confirm">确认</string>
 </resources>

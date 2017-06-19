@@ -105,6 +105,24 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
+        /*Intent intent = new Intent();
+        intent.putExtra("arrangeid", 92);
+        intent.putExtra("movie", "摔跤吧！爸爸");
+        intent.putExtra("cinema", "横店电影城(杭州下沙店)");
+        intent.putExtra("begintime", "12:00");
+        intent.putExtra("hall", "5号厅");
+        intent.putExtra("dimension", "3D");
+        intent.putExtra("price", (float)19.9);
+        intent.putExtra("userid", "xhz636");
+        intent.putExtra("cookie", cookie);
+        intent.setClass(LoginActivity.this, ChooseTicketActivity.class);
+        startActivity(intent);
+        finish();*/
+        Intent intent = new Intent();
+        intent.putExtra("ordernumber", "1ahd20evniabmh17ltn1zqto6r1497855946417");
+        intent.setClass(LoginActivity.this, QRCodeActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     private void getCaptcha() {
@@ -112,10 +130,10 @@ public class LoginActivity extends AppCompatActivity {
         CookieManager cookieManager = CookieManager.getInstance();
         cookieManager.setAcceptCookie(true);
         while (cookie == null)
-            cookie = cookieManager.getCookie("http://c.10000h.top");
+            cookie = cookieManager.getCookie("https://c.10000h.top");
         Log.d("cookie", cookie);
         CookieSyncManager.getInstance().sync();
-        webView_Captcha.loadUrl("http://c.10000h.top/user/captcha");
+        webView_Captcha.loadUrl("https://c.10000h.top/user/captcha");
     }
 
     private boolean checkCaptcha(final String code) {
@@ -125,7 +143,7 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     try {
-                        String geturl = "http://c.10000h.top/user/captchatest/" + code;
+                        String geturl = "https://c.10000h.top/user/captchatest/" + code;
                         Log.d("url", geturl);
                         URL url = new URL(geturl);
                         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -179,7 +197,7 @@ public class LoginActivity extends AppCompatActivity {
                         JSONObject jsonParam = new JSONObject();
                         jsonParam.put("phone_name", user_phone);
                         jsonParam.put("password", password);
-                        String posturl = "http://c.10000h.top/user/login/" + code;
+                        String posturl = "https://c.10000h.top/user/login/" + code;
                         Log.d("url", posturl);
                         URL url = new URL(posturl);
                         HttpURLConnection connection = (HttpURLConnection) url.openConnection();

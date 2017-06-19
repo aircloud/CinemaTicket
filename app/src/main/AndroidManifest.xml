@@ -19,6 +19,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".RegisterActivity" />
+        <activity android:name=".ChooseTicketActivity" />
+        <activity android:name=".QRCodeActivity" />
     </application>
 
 </manifest>
