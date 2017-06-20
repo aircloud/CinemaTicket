@@ -28,28 +28,14 @@ public class QRCodeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_qrcode);
         Intent intent = getIntent();
-        userid = intent.getStringExtra("userid");
+        String movie = intent.getStringExtra("movie");
+        String ordernumber = intent.getStringExtra("ordernumber");
         imageView = (ImageView)findViewById(R.id.qrcode_image);
         Bitmap bitmap;
+        setTitle(movie);
         try {
-            tickethelper = new TicketDatabaseHelper(this, "ticket.db", null, 1);
-            ticketdb = tickethelper.getWritableDatabase();
-            Cursor cursor = ticketdb.query(
-                    "ticket",
-                    new String[] { "movie", "ordernumber" },
-                    "userid = ?",
-                    new String[] { userid },
-                    null,
-                    null,
-                    null);
-            if(cursor.moveToFirst()) {
-                String movie = cursor.getString(cursor.getColumnIndex("movie"));
-                setTitle(movie);
-                String ordernumber = cursor.getString(cursor.getColumnIndex("ordernumber"));
-                bitmap = Create2DCode(ordernumber);
-                imageView.setImageBitmap(bitmap);
-            }
-            cursor.close();
+            bitmap = Create2DCode(ordernumber);
+            imageView.setImageBitmap(bitmap);
         } catch (WriterException e) {
             e.printStackTrace();
         }

@@ -8,7 +8,6 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.webkit.CookieManager;
-import android.webkit.CookieSyncManager;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -105,7 +104,7 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
-        /*Intent intent = new Intent();
+        Intent intent = new Intent();
         intent.putExtra("arrangeid", 92);
         intent.putExtra("movie", "摔跤吧！爸爸");
         intent.putExtra("cinema", "横店电影城(杭州下沙店)");
@@ -117,7 +116,7 @@ public class LoginActivity extends AppCompatActivity {
         intent.putExtra("cookie", cookie);
         intent.setClass(LoginActivity.this, ChooseTicketActivity.class);
         startActivity(intent);
-        finish();*/
+        finish();
     }
 
     private void getCaptcha() {

@@ -113,7 +113,7 @@ public class ChooseTicketActivity extends AppCompatActivity {
                             Toast.makeText(getApplicationContext(), "购票成功！", Toast.LENGTH_LONG).show();
                             Intent intent = new Intent();
                             intent.putExtra("userid", userid);
-                            intent.setClass(ChooseTicketActivity.this, QRCodeActivity.class);
+                            intent.setClass(ChooseTicketActivity.this, TicketListActivity.class);
                             startActivity(intent);
                             finish();
                         }

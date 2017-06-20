@@ -6,4 +6,6 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="info_fontsize">20sp</dimen>
     <dimen name="buy_ticket_fontsize">24sp</dimen>
+    <dimen name="item_movie">24sp</dimen>
+    <dimen name="item_info">20sp</dimen>
 </resources>
