@@ -1,6 +1,8 @@
 package com.example.xhz636.cinematicket;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -63,6 +65,10 @@ public class LoginActivity extends AppCompatActivity {
                     String password = editText_Password.getText().toString();
                     if (login(user_phone, password, captcha)) {
                         Toast.makeText(getApplicationContext(), "登录成功！", Toast.LENGTH_LONG).show();
+                        SharedPreferences sharedPreferences = getSharedPreferences("user", Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString("userid", user_phone);
+                        editor.commit();
                     }
                     else {
                         Toast.makeText(getApplicationContext(), "登录失败！", Toast.LENGTH_LONG).show();
@@ -104,7 +110,7 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
-        Intent intent = new Intent();
+        /*Intent intent = new Intent();
         intent.putExtra("arrangeid", 92);
         intent.putExtra("movie", "摔跤吧！爸爸");
         intent.putExtra("cinema", "横店电影城(杭州下沙店)");
@@ -116,7 +122,7 @@ public class LoginActivity extends AppCompatActivity {
         intent.putExtra("cookie", cookie);
         intent.setClass(LoginActivity.this, ChooseTicketActivity.class);
         startActivity(intent);
-        finish();
+        finish();*/
     }
 
     private void getCaptcha() {
