@@ -29,6 +29,7 @@ public class SuggestActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_cinema_all);
+        setTitle("热门电影");
         globalData = (GlobalData)getApplication();
         listView = (ListView)findViewById(R.id.all_list);
         movies = getSuggest();

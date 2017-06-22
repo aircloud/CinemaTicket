@@ -33,6 +33,10 @@ public class MovieActivity extends AppCompatActivity {
         Intent intent = getIntent();
         final String cinemaid = intent.getStringExtra("cinemaid");
         final String cinema = intent.getStringExtra("cinema");
+        if (cinema == null || cinema.equals(""))
+            setTitle("近期电影");
+        else
+            setTitle(cinema);
         listView = (ListView)findViewById(R.id.all_list);
         movies = getMovies(cinemaid);
         listView.setAdapter(new MovieListAdapter(this, movies));
@@ -50,10 +54,17 @@ public class MovieActivity extends AppCompatActivity {
                     intent.putExtra("cinemaid", cinemaid);
                     intent.putExtra("cinema", cinema);
                     intent.setClass(MovieActivity.this, ScheduleActivity.class);
-                    startActivity(intent);
+                    startActivityForResult(intent, 11);
                 }
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == 11 && resultCode == RESULT_OK) {
+            finish();
+        }
     }
 
     private List<MovieInfo> getMovies(final String cinemaid) {

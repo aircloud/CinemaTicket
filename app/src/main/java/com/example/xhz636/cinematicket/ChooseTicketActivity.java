@@ -120,6 +120,7 @@ public class ChooseTicketActivity extends AppCompatActivity {
                             payDialog.cancel();
                             Toast.makeText(getApplicationContext(), "购票成功！", Toast.LENGTH_LONG).show();
                             reloadUserActivity();
+                            setResult(RESULT_OK);
                             finish();
                         }
                     }

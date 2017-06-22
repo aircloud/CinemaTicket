@@ -35,6 +35,7 @@ public class UserActivity extends AppCompatActivity implements ActivityListener 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user);
+        setTitle("个人中心");
         globalData = (GlobalData)getApplication();
         Log.d("datauser", globalData.getUserid());
         listView = (ListView)findViewById(R.id.list_ticket_item);

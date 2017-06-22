@@ -9,7 +9,6 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.webkit.CookieManager;
-import android.webkit.CookieSyncManager;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -67,6 +66,7 @@ public class RegisterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+        setTitle("注册");
         globalData = (GlobalData)getApplication();
         Intent intent = getIntent();
         String userid = intent.getStringExtra("userid");

@@ -35,6 +35,7 @@ public class ScheduleActivity extends AppCompatActivity {
         String cinemaid = intent.getStringExtra("cinemaid");
         final String movie = intent.getStringExtra("movie");
         final String cinema = intent.getStringExtra("cinema");
+        setTitle(movie);
         listView = (ListView)findViewById(R.id.all_list);
         schedules = getSchedule(cinemaid, movieid);
         listView.setAdapter(new ScheduleListAdapter(this, schedules));
@@ -52,9 +53,17 @@ public class ScheduleActivity extends AppCompatActivity {
                 intent.putExtra("userid", globalData.getUserid());
                 intent.putExtra("cookie", globalData.getCookie());
                 intent.setClass(ScheduleActivity.this, ChooseTicketActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, 13);
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == 13 && resultCode == RESULT_OK) {
+            setResult(RESULT_OK);
+            finish();
+        }
     }
 
     private List<ScheduleInfo> getSchedule(final String cinemaid, final String movieid) {

@@ -44,6 +44,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        setTitle("登录");
         globalData = (GlobalData)getApplication();
         Intent intent = getIntent();
         String userid = intent.getStringExtra("userid");
