@@ -34,28 +34,33 @@ public class LoginActivity extends AppCompatActivity {
     private WebView webView_Captcha;
     private ImageButton imageButton_Captcha;
     private Button button_Login;
-    private Button button_Indent;
+    private Button button_Register;
 
-    private String cookie = null;
     private boolean captcha_check = false;
     private boolean login_result = false;
-    private int id;
-    private String name, phone, registertime;
+    private GlobalData globalData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        globalData = (GlobalData)getApplication();
+        Intent intent = getIntent();
+        String userid = intent.getStringExtra("userid");
+        String password = intent.getStringExtra("password");
         editText_UserPhone = (EditText)findViewById(R.id.login_user_phone);
+        if (userid != null && !userid.equals(""))
+            editText_UserPhone.setText(userid);
         editText_Password = (EditText)findViewById(R.id.login_password);
+        if (password != null && !password.equals(""))
+            editText_Password.setText(password);
         editText_Captcha = (EditText)findViewById(R.id.login_captcha_text);
         webView_Captcha = (WebView)findViewById(R.id.login_captcha_image);
         webView_Captcha.setVerticalScrollBarEnabled(false);
         webView_Captcha.setHorizontalScrollBarEnabled(false);
-        getCaptcha();
         imageButton_Captcha = (ImageButton)findViewById(R.id.login_captcha_refresh);
         button_Login = (Button)findViewById(R.id.login_button);
-        button_Indent = (Button)findViewById(R.id.login_indent);
+        button_Register = (Button)findViewById(R.id.login_indent);
         button_Login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -69,9 +74,12 @@ public class LoginActivity extends AppCompatActivity {
                         SharedPreferences.Editor editor = sharedPreferences.edit();
                         editor.putString("userid", user_phone);
                         editor.commit();
+                        globalData.setUserid(user_phone);
+                        setResult(RESULT_OK);
+                        finish();
                     }
                     else {
-                        Toast.makeText(getApplicationContext(), "登录失败！", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "用户名或密码错误", Toast.LENGTH_LONG).show();
                     }
                 }
                 else {
@@ -85,13 +93,14 @@ public class LoginActivity extends AppCompatActivity {
                 getCaptcha();
             }
         });
-        button_Indent.setOnClickListener(new View.OnClickListener() {
+        button_Register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent();
+                intent.putExtra("userid", editText_UserPhone.getText().toString());
+                intent.putExtra("password", editText_Password.getText().toString());
                 intent.setClass(LoginActivity.this, RegisterActivity.class);
-                startActivity(intent);
-                finish();
+                startActivityForResult(intent, 2);
             }
         });
         editText_Captcha.addTextChangedListener(new TextWatcher() {
@@ -110,65 +119,31 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
-        /*Intent intent = new Intent();
-        intent.putExtra("arrangeid", 92);
-        intent.putExtra("movie", "摔跤吧！爸爸");
-        intent.putExtra("cinema", "横店电影城(杭州下沙店)");
-        intent.putExtra("begintime", "12:00");
-        intent.putExtra("hall", "5号厅");
-        intent.putExtra("dimension", "3D");
-        intent.putExtra("price", (float)19.9);
-        intent.putExtra("userid", "xhz636");
-        intent.putExtra("cookie", cookie);
-        intent.setClass(LoginActivity.this, ChooseTicketActivity.class);
-        startActivity(intent);
-        finish();*/
+        initData();
+        getCaptcha();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == 2 && resultCode == RESULT_OK) {
+            String userid = intent.getStringExtra("userid");
+            String password = intent.getStringExtra("password");
+            if (userid != null && !userid.equals(""))
+                editText_UserPhone.setText(userid);
+            if (password != null && !password.equals(""))
+                editText_Password.setText(password);
+            getCaptcha();
+        }
     }
 
     private void getCaptcha() {
-        getCookie("https://c.10000h.top/user/captcha");
-        Log.d("cookie", cookie);
         webView_Captcha.loadUrl("https://c.10000h.top/user/captcha");
     }
 
-    private boolean getCookie(final String url) {
+    private void initData() {
         CookieManager cookieManager = CookieManager.getInstance();
         cookieManager.setAcceptCookie(true);
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    String geturl = url;
-                    Log.d("url", geturl);
-                    URL url = new URL(geturl);
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                    connection.setRequestMethod("GET");
-                    connection.setConnectTimeout(1000);
-                    connection.connect();
-                    int responsecode = connection.getResponseCode();
-                    Log.d("response", String.valueOf(responsecode));
-                    if (responsecode == HttpURLConnection.HTTP_OK) {
-                        cookie = connection.getHeaderField("Set-Cookie");
-                    }
-                    connection.disconnect();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        thread.start();
-        try {
-            thread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        if (cookie != null) {
-            cookieManager.setCookie("https://c.10000h.top/", cookie);
-            return true;
-        }
-        else {
-            return false;
-        }
+        cookieManager.setCookie("https://c.10000h.top/", globalData.getCookie());
     }
 
     private boolean checkCaptcha(final String code) {
@@ -183,8 +158,8 @@ public class LoginActivity extends AppCompatActivity {
                         URL url = new URL(geturl);
                         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                         connection.setRequestMethod("GET");
-                        connection.setRequestProperty("Cookie", cookie);
-                        Log.d("cookie", cookie);
+                        connection.setRequestProperty("Cookie", globalData.getCookie());
+                        Log.d("cookie", globalData.getCookie());
                         connection.setConnectTimeout(1000);
                         connection.connect();
                         int responsecode = connection.getResponseCode();
@@ -241,7 +216,7 @@ public class LoginActivity extends AppCompatActivity {
                         connection.setDoOutput(true);
                         connection.setRequestMethod("POST");
                         connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-                        connection.setRequestProperty("Cookie", cookie);
+                        connection.setRequestProperty("Cookie", globalData.getCookie());
                         connection.setConnectTimeout(1000);
                         connection.connect();
                         OutputStream output = connection.getOutputStream();
@@ -267,11 +242,6 @@ public class LoginActivity extends AppCompatActivity {
                             JSONObject jsonObject = new JSONObject(jsonString);
                             int success = jsonObject.optInt("result");
                             if (success == 2000) {
-                                JSONObject value = jsonObject.optJSONObject("user");
-                                id = value.optInt("id");
-                                name = value.optString("name");
-                                phone = value.optString("phone");
-                                registertime = value.optString("registertime");
                                 login_result = true;
                             }
                         }

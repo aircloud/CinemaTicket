@@ -18,11 +18,6 @@ public class QRCodeActivity extends AppCompatActivity {
 
     private ImageView imageView;
 
-    private String userid;
-
-    private TicketDatabaseHelper tickethelper;
-    private SQLiteDatabase ticketdb;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

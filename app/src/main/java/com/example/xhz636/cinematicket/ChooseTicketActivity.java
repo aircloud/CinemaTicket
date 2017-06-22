@@ -1,5 +1,6 @@
 package com.example.xhz636.cinematicket;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
@@ -36,8 +37,7 @@ public class ChooseTicketActivity extends AppCompatActivity {
     private int arrangeid;
     private float price;
     private int window_width;
-    private String userid;
-    private String cookie;
+    private GlobalData globalData;
 
     private TicketDatabaseHelper tickethelper;
     private SQLiteDatabase ticketdb;
@@ -46,6 +46,7 @@ public class ChooseTicketActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose_ticket);
+        globalData = (GlobalData)getApplication();
         Intent intent = getIntent();
         movie = intent.getStringExtra("movie");
         setTitle(movie);
@@ -61,8 +62,6 @@ public class ChooseTicketActivity extends AppCompatActivity {
         seatView_Seat.setScreenName(hall + "-" + dimension);
         arrangeid = intent.getIntExtra("arrangeid", 0);
         price = intent.getFloatExtra("price", 0);
-        userid = intent.getStringExtra("userid");
-        cookie = intent.getStringExtra("cookie");
         WindowManager windowManager = getWindowManager();
         window_width = windowManager.getDefaultDisplay().getWidth();
         seatView_Seat.setSeatClicker(new SeatView.SeatClicker() {
@@ -93,6 +92,15 @@ public class ChooseTicketActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "您尚未选座！", Toast.LENGTH_LONG).show();
                     return;
                 }
+                else if (globalData.getUserid() == null || globalData.getUserid().equals("")) {
+                    Toast.makeText(getApplicationContext(), "请先登录！", Toast.LENGTH_LONG).show();
+                    Intent loginIntent = new Intent();
+                    loginIntent.putExtra("userid", "");
+                    loginIntent.putExtra("password", "");
+                    loginIntent.setClass(ChooseTicketActivity.this, LoginActivity.class);
+                    startActivityForResult(loginIntent, 1);
+                    return;
+                }
                 final PayDialog payDialog = new PayDialog(getWindow().getContext());
                 payDialog.show();
                 payDialog.setMoney(price * selects.size());
@@ -111,10 +119,7 @@ public class ChooseTicketActivity extends AppCompatActivity {
                             seatView_Seat.clearSelect();
                             payDialog.cancel();
                             Toast.makeText(getApplicationContext(), "购票成功！", Toast.LENGTH_LONG).show();
-                            Intent intent = new Intent();
-                            intent.putExtra("userid", userid);
-                            intent.setClass(ChooseTicketActivity.this, TicketListActivity.class);
-                            startActivity(intent);
+                            reloadUserActivity();
                             finish();
                         }
                     }
@@ -123,6 +128,26 @@ public class ChooseTicketActivity extends AppCompatActivity {
         });
         tickethelper = new TicketDatabaseHelper(this, "ticket.db", null, 1);
         ticketdb = tickethelper.getWritableDatabase();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        Log.d("test", "choose");
+        Activity userActivity = globalData.getManager().getActivity("UserActivity");
+        if (userActivity instanceof ActivityListener) {
+            ActivityListener listener = (ActivityListener)userActivity;
+            listener.activityListener(requestCode, resultCode, intent);
+        }
+        super.onActivityResult(requestCode, resultCode, intent);
+    }
+
+    private void reloadUserActivity() {
+        Activity userActivity = globalData.getManager().getActivity("UserActivity");
+        if (userActivity instanceof ActivityListener) {
+            Log.d("test", "choosereload");
+            ActivityListener listener = (ActivityListener)userActivity;
+            listener.reloadData();
+        }
     }
 
     private void initTicket() {
@@ -135,7 +160,7 @@ public class ChooseTicketActivity extends AppCompatActivity {
                     URL url = new URL(geturl);
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setRequestMethod("GET");
-                    connection.setRequestProperty("Cookie", cookie);
+                    connection.setRequestProperty("Cookie", globalData.getCookie());
                     connection.setConnectTimeout(1000);
                     connection.connect();
                     int responsecode = connection.getResponseCode();
@@ -182,12 +207,12 @@ public class ChooseTicketActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    String geturl = "https://c.10000h.top/main/order/" + arrangeid + "/" + userid + "/" + seatid;
+                    String geturl = "https://c.10000h.top/main/order/" + arrangeid + "/" + globalData.getUserid() + "/" + seatid;
                     Log.d("url", geturl);
                     URL url = new URL(geturl);
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setRequestMethod("POST");
-                    connection.setRequestProperty("Cookie", cookie);
+                    connection.setRequestProperty("Cookie", globalData.getCookie());
                     connection.setConnectTimeout(1000);
                     connection.connect();
                     int responsecode = connection.getResponseCode();
@@ -209,7 +234,7 @@ public class ChooseTicketActivity extends AppCompatActivity {
                         {
                             String ordernumber = jsonObject.optString("value");
                             ContentValues values = new ContentValues();
-                            values.put("userid", userid);
+                            values.put("userid", globalData.getUserid());
                             values.put("movie", movie);
                             values.put("cinema", cinema);
                             values.put("begintime", begintime);
@@ -228,6 +253,11 @@ public class ChooseTicketActivity extends AppCompatActivity {
             }
         });
         thread.start();
+        try {
+            thread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
 }

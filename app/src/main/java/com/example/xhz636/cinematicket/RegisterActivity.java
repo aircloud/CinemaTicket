@@ -39,14 +39,15 @@ public class RegisterActivity extends AppCompatActivity {
     private Button button_Verify;
     private Button button_Register;
 
-    private String cookie = null;
     private boolean captcha_check = false;
     private boolean user_phone_check = false;
+    private String exist_type;
     private boolean verify_request = false;
     private boolean register_result = false;
     private final long verify_delay = 30 * 1000;
     private int regid;
     private String regname, regphone, registertime;
+    private GlobalData globalData;
 
     private CountDownTimer timer = new CountDownTimer(verify_delay, 1000) {
         @Override
@@ -66,15 +67,22 @@ public class RegisterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+        globalData = (GlobalData)getApplication();
+        Intent intent = getIntent();
+        String userid = intent.getStringExtra("userid");
+        String password = intent.getStringExtra("password");
         editText_User = (EditText)findViewById(R.id.register_user);
+        if (userid != null && !userid.equals(""))
+            editText_User.setText(userid);
         editText_Phone = (EditText)findViewById(R.id.register_phone);
         editText_Password = (EditText)findViewById(R.id.register_password);
+        if (password != null && !password.equals(""))
+            editText_Password.setText(password);
         editText_PasswordConfirm = (EditText)findViewById(R.id.register_password_confirm);
         editText_Captcha = (EditText)findViewById(R.id.register_captcha_text);
         webView_Captcha = (WebView)findViewById(R.id.register_captcha_image);
         webView_Captcha.setVerticalScrollBarEnabled(false);
         webView_Captcha.setHorizontalScrollBarEnabled(false);
-        getCaptcha();
         imageButton_Captcha = (ImageButton)findViewById(R.id.register_captcha_refresh);
         editText_Verify = (EditText)findViewById(R.id.register_verify_text);
         button_Verify = (Button)findViewById(R.id.register_verify_button);
@@ -114,8 +122,9 @@ public class RegisterActivity extends AppCompatActivity {
                     if (register(verify, user, phone, password)) {
                         Toast.makeText(getApplicationContext(), "注册成功！", Toast.LENGTH_LONG).show();
                         Intent intent = new Intent();
-                        intent.setClass(RegisterActivity.this, LoginActivity.class);
-                        startActivity(intent);
+                        intent.putExtra("userid", user);
+                        intent.putExtra("password", password);
+                        setResult(RESULT_OK, intent);
                         finish();
                     }
                     else {
@@ -123,8 +132,11 @@ public class RegisterActivity extends AppCompatActivity {
                     }
                 }
                 else {
-                    editText_User.setError("用户已被注册");
-                    editText_Phone.setError("手机已被注册");
+                    if (exist_type.equals("name")) {
+                        editText_User.setError("用户已被注册");
+                    } else if (exist_type.equals("phone")) {
+                        editText_Phone.setError("手机已被注册");
+                    }
                 }
             }
         });
@@ -230,52 +242,18 @@ public class RegisterActivity extends AppCompatActivity {
 
             }
         });
+        initData();
+        getCaptcha();
     }
 
     private void getCaptcha() {
-        getCookie("https://c.10000h.top/user/captcha");
-        Log.d("cookie", cookie);
         webView_Captcha.loadUrl("https://c.10000h.top/user/captcha");
     }
 
-    private boolean getCookie(final String url) {
+    private void initData() {
         CookieManager cookieManager = CookieManager.getInstance();
         cookieManager.setAcceptCookie(true);
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    String geturl = url;
-                    Log.d("url", geturl);
-                    URL url = new URL(geturl);
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                    connection.setRequestMethod("GET");
-                    connection.setConnectTimeout(1000);
-                    connection.connect();
-                    int responsecode = connection.getResponseCode();
-                    Log.d("response", String.valueOf(responsecode));
-                    if (responsecode == HttpURLConnection.HTTP_OK) {
-                        cookie = connection.getHeaderField("Set-Cookie");
-                    }
-                    connection.disconnect();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        thread.start();
-        try {
-            thread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        if (cookie != null) {
-            cookieManager.setCookie("https://c.10000h.top/", cookie);
-            return true;
-        }
-        else {
-            return false;
-        }
+        cookieManager.setCookie("https://c.10000h.top/", globalData.getCookie());
     }
 
     private boolean checkCaptcha(final String code) {
@@ -289,7 +267,7 @@ public class RegisterActivity extends AppCompatActivity {
                     URL url = new URL(geturl);
                     HttpURLConnection connection = (HttpURLConnection)url.openConnection();
                     connection.setRequestMethod("GET");
-                    connection.setRequestProperty("Cookie", cookie);
+                    connection.setRequestProperty("Cookie", globalData.getCookie());
                     connection.setConnectTimeout(1000);
                     connection.connect();
                     int code = connection.getResponseCode();
@@ -339,8 +317,8 @@ public class RegisterActivity extends AppCompatActivity {
                         URL url = new URL(geturl);
                         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                         connection.setRequestMethod("GET");
-                        connection.setRequestProperty("Cookie", cookie);
-                        Log.d("cookie", cookie);
+                        connection.setRequestProperty("Cookie", globalData.getCookie());
+                        Log.d("cookie", globalData.getCookie());
                         connection.setConnectTimeout(1000);
                         connection.connect();
                         int responsecode = connection.getResponseCode();
@@ -359,9 +337,11 @@ public class RegisterActivity extends AppCompatActivity {
                             JSONObject jsonObject = new JSONObject(jsonString);
                             int success = jsonObject.optInt("success");
                             JSONObject value = jsonObject.optJSONObject("value");
-                            boolean result = value.optBoolean("result");
-                            if (success == 2000 && result)
+                            boolean exist = value.optBoolean("result");
+                            if (success == 2000 && exist) {
                                 user_phone_check = true;
+                                exist_type = value.optString("type");
+                            }
                         }
                         connection.disconnect();
                     } catch (Exception e) {
@@ -425,7 +405,7 @@ public class RegisterActivity extends AppCompatActivity {
                     URL url = new URL(geturl);
                     HttpURLConnection connection = (HttpURLConnection)url.openConnection();
                     connection.setRequestMethod("GET");
-                    connection.setRequestProperty("Cookie", cookie);
+                    connection.setRequestProperty("Cookie", globalData.getCookie());
                     connection.setConnectTimeout(1000);
                     connection.connect();
                     int code = connection.getResponseCode();
@@ -486,7 +466,7 @@ public class RegisterActivity extends AppCompatActivity {
                         connection.setDoOutput(true);
                         connection.setRequestMethod("POST");
                         connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-                        connection.setRequestProperty("Cookie", cookie);
+                        connection.setRequestProperty("Cookie", globalData.getCookie());
                         connection.setConnectTimeout(1000);
                         connection.connect();
                         OutputStream output = connection.getOutputStream();

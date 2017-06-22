@@ -7,7 +7,7 @@
         android:id="@+id/ticket_buy"
         android:text="@string/action_buy_ticket"
         android:textColor="#FFFFFF"
-        android:textSize="@dimen/buy_ticket_fontsize"
+        android:textSize="@dimen/button_fontsize"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
