@@ -6,6 +6,8 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="info_fontsize">20sp</dimen>
     <dimen name="button_fontsize">24sp</dimen>
-    <dimen name="item_movie">20sp</dimen>
-    <dimen name="item_info">18sp</dimen>
+    <dimen name="item_title">20sp</dimen>
+    <dimen name="item_info">16sp</dimen>
+    <dimen name="item_horizontal_margin">12dp</dimen>
+    <dimen name="item_vertical_margin">4dp</dimen>
 </resources>

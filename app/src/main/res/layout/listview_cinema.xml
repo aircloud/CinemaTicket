@@ -7,7 +7,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin">
 
     <TextView
-        android:id="@+id/ticket_item_movie"
+        android:id="@+id/cinema_item_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="@dimen/item_title"
@@ -16,23 +16,16 @@
         android:ellipsize="end" />
 
     <TextView
-        android:id="@+id/ticket_item_time"
+        android:id="@+id/cinema_item_price"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="@dimen/item_info"
+        android:textColor="@color/colorAccent"
         android:maxLines="1"
         android:ellipsize="end" />
 
     <TextView
-        android:id="@+id/ticket_item_cinema"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="@dimen/item_info"
-        android:maxLines="1"
-        android:ellipsize="end" />
-
-    <TextView
-        android:id="@+id/ticket_item_hall_seat"
+        android:id="@+id/cinema_item_address"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="@dimen/item_info"

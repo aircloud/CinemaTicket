@@ -194,6 +194,11 @@ public class ChooseTicketActivity extends AppCompatActivity {
             }
         });
         thread.start();
+        try {
+            thread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private boolean checkBank(String id, String password, float price) {

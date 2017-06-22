@@ -18,11 +18,11 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SuggestActivity extends AppCompatActivity {
+public class ScheduleActivity extends AppCompatActivity {
 
     private ListView listView;
 
-    private List<MovieInfo> movies;
+    private List<ScheduleInfo> schedules;
     private GlobalData globalData;
 
     @Override
@@ -30,28 +30,40 @@ public class SuggestActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_cinema_all);
         globalData = (GlobalData)getApplication();
+        Intent intent = getIntent();
+        String movieid = intent.getStringExtra("movieid");
+        String cinemaid = intent.getStringExtra("cinemaid");
+        final String movie = intent.getStringExtra("movie");
+        final String cinema = intent.getStringExtra("cinema");
         listView = (ListView)findViewById(R.id.all_list);
-        movies = getSuggest();
-        listView.setAdapter(new MovieListAdapter(this, movies));
+        schedules = getSchedule(cinemaid, movieid);
+        listView.setAdapter(new ScheduleListAdapter(this, schedules));
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent();
-                intent.putExtra("movieid", movies.get(position).getMovieid());
-                intent.putExtra("movie", movies.get(position).getName());
-                intent.setClass(SuggestActivity.this, CinemaActivity.class);
+                intent.putExtra("arrangeid", schedules.get(position).getId());
+                intent.putExtra("movie", movie);
+                intent.putExtra("cinema", cinema);
+                intent.putExtra("begintime", schedules.get(position).getBegintime());
+                intent.putExtra("hall", schedules.get(position).getHall());
+                intent.putExtra("dimension", schedules.get(position).getDimension());
+                intent.putExtra("price", schedules.get(position).getPrice());
+                intent.putExtra("userid", globalData.getUserid());
+                intent.putExtra("cookie", globalData.getCookie());
+                intent.setClass(ScheduleActivity.this, ChooseTicketActivity.class);
                 startActivity(intent);
             }
         });
     }
 
-    private List<MovieInfo> getSuggest() {
-        final List<MovieInfo> lists = new ArrayList<>();
+    private List<ScheduleInfo> getSchedule(final String cinemaid, final String movieid) {
+        final List<ScheduleInfo> lists = new ArrayList<>();
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    String geturl = "https://c.10000h.top/main/recommend";
+                    String geturl = "https://c.10000h.top/main/schedule/" + cinemaid + "/" + movieid;
                     Log.d("url", geturl);
                     URL url = new URL(geturl);
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -70,24 +82,25 @@ public class SuggestActivity extends AppCompatActivity {
                             byteArrayOutputStream.write(buffer, 0, len);
                         }
                         String jsonString = byteArrayOutputStream.toString();
-                        Log.d("movies", jsonString);
+                        Log.d("cinema", jsonString);
                         byteArrayOutputStream.close();
                         JSONObject jsonObject = new JSONObject(jsonString);
                         int success = jsonObject.optInt("success");
                         if (success == 2000) {
                             JSONArray value = jsonObject.optJSONArray("value");
                             for (int i = 0; i < value.length(); i++) {
-                                JSONObject movie = value.getJSONObject(i);
-                                MovieInfo info = new MovieInfo();
-                                info.setId(movie.optInt("id"));
-                                info.setName(movie.optString("name"));
-                                info.setAbstra(movie.optString("abstract"));
-                                info.setScore((float)movie.optDouble("score"));
-                                info.setType(movie.optString("type"));
-                                info.setDuration(movie.optString("duration"));
-                                info.setShowtime(movie.optString("showtime"));
-                                info.setPhoto(movie.optString("photo"));
-                                info.setMovieid(movie.optString("nm_movieid"));
+                                JSONObject schedule = value.getJSONObject(i);
+                                ScheduleInfo info = new ScheduleInfo();
+                                info.setId(schedule.optInt("id"));
+                                info.setBegintime(schedule.optString("begintime"));
+                                info.setEndtime(schedule.optString("endtime"));
+                                info.setDimension(schedule.optString("dimension"));
+                                info.setHall(schedule.optString("hall"));
+                                String price = schedule.optString("price");
+                                info.setPrice(Float.valueOf(price.replaceAll("[^0-9\\.]", "")));
+                                info.setSurplus(schedule.optInt("surplus"));
+                                info.setCinemaid(schedule.optString("cinemaid"));
+                                info.setMovieid(schedule.optString("movieid"));
                                 lists.add(info);
                             }
                         }
@@ -108,5 +121,3 @@ public class SuggestActivity extends AppCompatActivity {
     }
 
 }
-
-

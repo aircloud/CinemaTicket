@@ -14,6 +14,7 @@ public class TicketListAdapter extends BaseAdapter {
     private Context context;
     private List<TicketInfo> tickets;
     private LayoutInflater layoutInflater;
+
     private TextView textView_Moive;
     private TextView textView_Time;
     private TextView textView_Ciname;
